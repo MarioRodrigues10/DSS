@@ -1,55 +1,176 @@
 package dss.data;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.ResultSet;
+import java.sql.*;
+import java.util.*;
+
+import dss.business.User.AthleteStudent;
+import dss.business.User.EmployedStudent;
+import dss.business.User.Student;
 
 public class StudentDAO {
-    private static StudentDAO singleton = null;
 
-    public StudentDAO() {
-        String sql = "CREATE TABLE IF NOT EXISTS students (\n"
-                + " id integer PRIMARY KEY,\n"
-                + " password text NOT NULL,\n"
-                + " idCourse integer\n"
-                + ");";
+    public boolean addStudent(Student student) throws Exception {
+        int type = student.getType();
+        if (type < 0 || type > 2) {
+            throw new Exception("Tipo de estudante inválido: " + type);
+        }
 
-        try (Connection conn = DriverManager.getConnection(DAOConfig.URL, DAOConfig.USERNAME, DAOConfig.PASSWORD);
-             Statement stmt = conn.createStatement()) {
-            stmt.execute(sql);
-            System.out.println("Table created successfully");
+        try {
+            DAOConfig.connection.setAutoCommit(false);
+
+            try (PreparedStatement stm = DAOConfig.connection.prepareStatement(
+                    "INSERT INTO students (id, password, type, course) VALUES (?, ?, ?, ?)")) {
+                stm.setInt(1, student.getId());
+                stm.setString(2, student.getPassword());
+                stm.setInt(3, type);
+                stm.setInt(4, student.getCourse());
+                stm.executeUpdate();
+            }
+
+            for (int ucId : student.getUCs()) {
+                try (PreparedStatement stm = DAOConfig.connection.prepareStatement(
+                        "INSERT INTO student_ucs (student_id, uc_id) VALUES (?, ?)")) {
+                    stm.setInt(1, student.getId());
+                    stm.setInt(2, ucId);
+                    stm.executeUpdate();
+                }
+            }
+
+            for (Map.Entry<Integer, List<Integer>> entry : student.getSchedule().entrySet()) {
+                int ucId = entry.getKey();
+                for (int shiftId : entry.getValue()) {
+                    try (PreparedStatement stm = DAOConfig.connection.prepareStatement(
+                            "INSERT INTO student_schedule (student_id, uc_id, shift_id) VALUES (?, ?, ?)")) {
+                        stm.setInt(1, student.getId());
+                        stm.setInt(2, ucId);
+                        stm.setInt(3, shiftId);
+                        stm.executeUpdate();
+                    }
+                }
+            }
+
+            DAOConfig.connection.commit();
+            return true;
+
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            DAOConfig.connection.rollback();
+            throw new Exception("Erro ao adicionar estudante: " + e.getMessage());
+        } finally {
+            DAOConfig.connection.setAutoCommit(true);
         }
     }
 
-    public static StudentDAO getInstance(){
-        if (singleton == null) {
-            singleton = new StudentDAO();
+    public Student getStudent(int id) throws Exception {
+        try {
+            Student student = null;
+            try (PreparedStatement stm = DAOConfig.connection.prepareStatement("SELECT * FROM students WHERE id = ?")) {
+                stm.setInt(1, id);
+                ResultSet rs = stm.executeQuery();
+                if (rs.next()) {
+                    int type = rs.getInt("type");
+                    switch (type) {
+                        case 0:
+                            student = new Student(
+                                    rs.getInt("id"),
+                                    rs.getString("password"),
+                                    rs.getInt("course")
+                            );
+                            break;
+                        case 1:
+                            student = new AthleteStudent(
+                                    rs.getInt("id"),
+                                    rs.getString("password"),
+                                    rs.getInt("course")
+                            );
+                            break;
+                        case 2:
+                            student = new EmployedStudent(
+                                    rs.getInt("id"),
+                                    rs.getString("password"),
+                                    rs.getInt("course")
+                            );
+                            break;
+                        default:
+                            throw new Exception("Tipo de estudante desconhecido: " + type);
+                    }
+                }
+            }
+
+            if (student == null) return null;
+
+            List<Integer> ucs = new ArrayList<>();
+            try (PreparedStatement stm = DAOConfig.connection.prepareStatement(
+                    "SELECT uc_id FROM student_ucs WHERE student_id = ?")) {
+                stm.setInt(1, id);
+                ResultSet rs = stm.executeQuery();
+                while (rs.next()) {
+                    ucs.add(rs.getInt("uc_id"));
+                }
+            }
+            student.setUCs(ucs);
+
+            Map<Integer, List<Integer>> schedule = new HashMap<>();
+            try (PreparedStatement stm = DAOConfig.connection.prepareStatement(
+                    "SELECT uc_id, shift_id FROM student_schedule WHERE student_id = ?")) {
+                stm.setInt(1, id);
+                ResultSet rs = stm.executeQuery();
+                while (rs.next()) {
+                    int ucId = rs.getInt("uc_id");
+                    int shiftId = rs.getInt("shift_id");
+                    schedule.computeIfAbsent(ucId, k -> new ArrayList<>()).add(shiftId);
+                }
+            }
+            student.setSchedule(schedule);
+
+            return student;
+
+        } catch (SQLException e) {
+            throw new Exception("Erro ao obter estudante: " + e.getMessage());
         }
-        return singleton;
     }
 
+    public void removeStudent(int id) throws Exception {
+        try {
+            DAOConfig.connection.setAutoCommit(false);
+
+            try (PreparedStatement stm = DAOConfig.connection.prepareStatement(
+                    "DELETE FROM student_schedule WHERE student_id = ?")) {
+                stm.setInt(1, id);
+                stm.executeUpdate();
+            }
+
+            try (PreparedStatement stm = DAOConfig.connection.prepareStatement(
+                    "DELETE FROM student_ucs WHERE student_id = ?")) {
+                stm.setInt(1, id);
+                stm.executeUpdate();
+            }
+
+            try (PreparedStatement stm = DAOConfig.connection.prepareStatement(
+                    "DELETE FROM students WHERE id = ?")) {
+                stm.setInt(1, id);
+                stm.executeUpdate();
+            }
+
+            DAOConfig.connection.commit();
+
+        } catch (SQLException e) {
+            DAOConfig.connection.rollback();
+            throw new Exception("Erro ao remover estudante: " + e.getMessage());
+        } finally {
+            DAOConfig.connection.setAutoCommit(true);
+        }
+    }
 
     public int size() {
-        int i = 0;
-        try (Connection conn = DriverManager.getConnection(DAOConfig.URL, DAOConfig.USERNAME, DAOConfig.PASSWORD);
-             Statement stm = conn.createStatement();
-             ResultSet rs = stm.executeQuery("SELECT count(*) FROM students")) {
-            if(rs.next()) {
-                i = rs.getInt(1);
+        try (Statement stm = DAOConfig.connection.createStatement()) {
+            ResultSet rs = stm.executeQuery("SELECT COUNT(*) FROM students");
+            if (rs.next()) {
+                return rs.getInt(1);
             }
-        }
-        catch (Exception e) {
+            return 0;
+        } catch (SQLException e) {
             e.printStackTrace();
-            throw new NullPointerException(e.getMessage());
+            return 0;
         }
-        return i;
-    }
-
-    public boolean isEmpty() {
-        return this.size() == 0;
     }
 }

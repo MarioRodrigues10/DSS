@@ -1,55 +1,71 @@
 package dss.data;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.ResultSet;
+import java.sql.*;
+
+import dss.business.Course.Course;
 
 public class CourseDAO {
-    private static CourseDAO singleton = null;
 
-    public CourseDAO() {
-        String sql = "CREATE TABLE IF NOT EXISTS courses (\n"
-                + " id integer PRIMARY KEY,\n"
-                + " name text NOT NULL,\n"
-                + " visibilitySchedules boolean NOT NULL\n"
-                + ");";
-
-        try (Connection conn = DriverManager.getConnection(DAOConfig.URL, DAOConfig.USERNAME, DAOConfig.PASSWORD);
-             Statement stmt = conn.createStatement()) {
-            stmt.execute(sql);
-            System.out.println("Table created successfully");
+    public boolean addCourse(int id, String name, boolean visibilitySchedules) throws Exception {
+        try (PreparedStatement stm = DAOConfig.connection.prepareStatement(
+                "INSERT INTO courses (id, name, visibilitySchedules) VALUES (?, ?, ?)")) {
+            stm.setInt(1, id);
+            stm.setString(2, name);
+            stm.setBoolean(3, visibilitySchedules);
+            stm.executeUpdate();
+            return true;
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            throw new Exception("Erro ao adicionar curso: " + e.getMessage());
         }
     }
 
-    public static CourseDAO getInstance(){
-        if (singleton == null) {
-            singleton = new CourseDAO();
-        }
-        return singleton;
-    }
-
-
-    public int size() {
-        int i = 0;
-        try (Connection conn = DriverManager.getConnection(DAOConfig.URL, DAOConfig.USERNAME, DAOConfig.PASSWORD);
-             Statement stm = conn.createStatement();
-             ResultSet rs = stm.executeQuery("SELECT count(*) FROM courses")) {
-            if(rs.next()) {
-                i = rs.getInt(1);
+    public Course getCourse(int id) throws Exception {
+        try (PreparedStatement stm = DAOConfig.connection.prepareStatement("SELECT * FROM courses WHERE id = ?")) {
+            stm.setInt(1, id);
+            ResultSet rs = stm.executeQuery();
+            if (rs.next()) {
+                return new Course(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getBoolean("visibilitySchedules")
+                );
             }
+            return null;
+        } catch (SQLException e) {
+            throw new Exception("Erro ao obter curso: " + e.getMessage());
         }
-        catch (Exception e) {
-            e.printStackTrace();
-            throw new NullPointerException(e.getMessage());
-        }
-        return i;
     }
 
-    public boolean isEmpty() {
-        return this.size() == 0;
+    public boolean updateCourse(int id, String name, boolean visibilitySchedules) throws Exception {
+        try (PreparedStatement stm = DAOConfig.connection.prepareStatement(
+                "UPDATE courses SET name = ?, visibilitySchedules = ? WHERE id = ?")) {
+            stm.setString(1, name);
+            stm.setBoolean(2, visibilitySchedules);
+            stm.setInt(3, id);
+            int rowsUpdated = stm.executeUpdate();
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            throw new Exception("Erro ao atualizar curso: " + e.getMessage());
+        }
+    }
+
+    public boolean exists(int id) throws Exception {
+        try (PreparedStatement stm = DAOConfig.connection.prepareStatement("SELECT 1 FROM courses WHERE id = ?")) {
+            stm.setInt(1, id);
+            ResultSet rs = stm.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            throw new Exception("Erro ao verificar a existência do curso: " + e.getMessage());
+        }
+    }
+
+    public boolean removeCourse(int id) throws Exception {
+        try (PreparedStatement stm = DAOConfig.connection.prepareStatement("DELETE FROM courses WHERE id = ?")) {
+            stm.setInt(1, id);
+            int rowsDeleted = stm.executeUpdate();
+            return rowsDeleted > 0;
+        } catch (SQLException e) {
+            throw new Exception("Erro ao remover curso: " + e.getMessage());
+        }
     }
 }
