@@ -17,19 +17,19 @@ public class LNFacade {
     private final GesScheduleFacade gesScheduleFacade = new GesScheduleFacade();
 
     // Course
-    public boolean registerPolicyOption(String idCourse, String idUC, String policyPreference){
+    public boolean registerPolicyOption(int idCourse, int idUC, String policyPreference){
         return gesCourseFacade.registerPolicyOption(idCourse, idUC, policyPreference);
     }
 
-    public boolean importStudents(String path, String idCourse){
+    public boolean importStudents(String path, int idCourse) throws Exception{
         return gesCourseFacade.importStudents(path, idCourse);
     }
 
-    public boolean importUCs(String path, String idCourse){
+    public boolean importUCs(String path, int idCourse){
         return gesCourseFacade.importUCs(path, idCourse);
     }
 
-    public boolean addStudent(int idStudent, String idCourse){
+    public boolean addStudent(int idStudent, int idCourse){
         return gesCourseFacade.addStudent(idStudent, idCourse);
     }
 
@@ -42,8 +42,12 @@ public class LNFacade {
         return gesUserFacade.verifyPassword(idUser, password);
     }
 
+    public Student getStudent(int idStudent) throws Exception{
+        return gesUserFacade.getStudent(idStudent);
+    }
+
     // Schedule
-    public List<Integer> getStudentsWithScheduleConflicts(String idCourse) {
+    public List<Integer> getStudentsWithScheduleConflicts(int idCourse) {
         return gesScheduleFacade.getStudentsWithScheduleConflicts(idCourse);
     }
 
@@ -55,27 +59,27 @@ public class LNFacade {
         gesScheduleFacade.generateSchedule(idCourse);
     }
 
-    public List<Student> getStudentsWithoutSchedule (String idCourse) {
+    public List<Student> getStudentsWithoutSchedule (int idCourse) {
         return gesScheduleFacade.getStudentsWithoutSchedule(idCourse);
     }
 
-    public boolean importTimeTable (String idCourse, String year, String path) {
+    public boolean importTimeTable (int idCourse, int year, String path) {
         return gesScheduleFacade.importTimeTable(idCourse, year, path);
     }
 
-    public boolean postSchedule (String idCourse) {
+    public boolean postSchedule (int idCourse) {
         return gesScheduleFacade.postSchedule(idCourse);
     }
 
-    public boolean sendEmails (String idCourse) {
+    public boolean sendEmails (int idCourse) {
         return gesScheduleFacade.sendEmails(idCourse);
     }
 
-    public Map<UC, Map<Shift,List<TimeSlot>>> getStudentSchedule (int idStudent, String idCourse) {
+    public Map<UC, Map<Shift,List<TimeSlot>>> getStudentSchedule (int idStudent, int idCourse) {
         return gesScheduleFacade.getStudentSchedule(idStudent, idCourse);
     }
 
-    public boolean registerSchedule (String idCourse, int idStudent, Map<Integer, List<Integer>> schedule) {
-        return gesScheduleFacade.registerSchedule(idCourse, idStudent, schedule);
+    public boolean registerSchedule (int idStudent, Map<Integer, List<Integer>> schedule) {
+        return gesScheduleFacade.registerSchedule(idStudent, schedule);
     }
 }

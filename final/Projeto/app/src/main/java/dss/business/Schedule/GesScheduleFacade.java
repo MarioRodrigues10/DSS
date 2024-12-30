@@ -1,7 +1,6 @@
 package dss.business.Schedule;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import dss.business.Course.*;
 import dss.business.User.Student;
@@ -18,9 +17,22 @@ public class GesScheduleFacade implements ISchedule {
         this.students = new StudentDAO();
     }
 
-    // Mariana
-    public List<Integer> getStudentsWithScheduleConflicts(String idCourse) {
-        return null;
+    public List<Integer> getStudentsWithScheduleConflicts(int idCourse) {
+        List<Integer> studentsWithScheduleConflicts = new ArrayList<>();
+        try {
+            List<Student> studentss = this.students.getStudentsByCourse(idCourse);
+
+            List<Shift> shifts = this.courses.getShiftsByCourse(idCourse);
+
+            for (Student student : studentss) {
+                if (student.hasScheduleConflict(shifts)) {
+                    studentsWithScheduleConflicts.add(student.getId());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return studentsWithScheduleConflicts;
     }
 
     public boolean exportSchedule (int idStudent, String filename) {
@@ -32,30 +44,62 @@ public class GesScheduleFacade implements ISchedule {
         
     }
 
-    public List<Student> getStudentsWithoutSchedule (String idCourse) {
+    public List<Student> getStudentsWithoutSchedule (int idCourse) {
         return null;
     }
 
-    public boolean importTimeTable (String idCourse, String year, String path) {
+    public boolean importTimeTable (int idCourse, int year, String path) {
         return false;
     }
 
-    public boolean postSchedule (String idCourse) {
+    public boolean postSchedule (int idCourse) {
         return false;
     }
 
-    // Mariana
-    public boolean sendEmails (String idCourse) {
+    public boolean sendEmails (int idCourse) {
+        try {
+            Course course = courses.getCourse(idCourse);
+            if (course == null) {
+                return false;
+            }
 
-        return false;
+            List<Student> studentss = students.getStudentsByCourse(idCourse);
+            if (studentss == null) {
+                return false;
+            }
+
+            for (Student student : studentss) {
+                student.sendEmail();
+            }
+
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
-    public Map<UC, Map<Shift,List<TimeSlot>>> getStudentSchedule (int idStudent, String idCourse) {
+    public Map<UC, Map<Shift,List<TimeSlot>>> getStudentSchedule (int idStudent, int idCourse) {
         return null;
     }
 
-    // Mariana
-    public boolean registerSchedule (String idCourse, int idStudent, Map<Integer, List<Integer>> schedule) {
-        return false;
+    public boolean registerSchedule (int idStudent, Map<Integer, List<Integer>> schedule) {
+        try {
+
+            Student student = students.getStudent(idStudent);
+            if (student == null) {
+                return false;
+            }
+
+            students.removeScheduleFromStudent(idStudent);
+            students.addScheduleToStudent(idStudent, schedule);
+
+            return true;
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

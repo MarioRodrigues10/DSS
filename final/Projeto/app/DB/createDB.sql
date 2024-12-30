@@ -33,7 +33,13 @@ CREATE TABLE IF NOT EXISTS `dss`.`ucs` (
   `year` INT NOT NULL,
   `semester` INT NOT NULL,
   `policyPreference` TEXT,
-  PRIMARY KEY (`id`))
+  `course` INT,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `fk_ucs_courses`
+    FOREIGN KEY (`course`)
+    REFERENCES `dss`.`courses` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
@@ -99,7 +105,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `dss`.`students_ucs`
 -- -----------------------------------------------------
-CREATE TABLE student_ucs (
+CREATE TABLE IF NOT EXISTS `dss`.`student_ucs` (
     student_id INT NOT NULL,
     uc_id INT NOT NULL,
     PRIMARY KEY (student_id, uc_id),
@@ -110,7 +116,7 @@ CREATE TABLE student_ucs (
 -- -----------------------------------------------------
 -- Table `dss`.`students_schedule`
 -- -----------------------------------------------------
-CREATE TABLE student_schedule (
+CREATE TABLE IF NOT EXISTS `dss`.`student_schedule` (
     student_id INT NOT NULL,
     uc_id INT NOT NULL,
     shift_id INT NOT NULL,
