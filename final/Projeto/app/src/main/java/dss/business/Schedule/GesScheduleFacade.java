@@ -1,6 +1,7 @@
 package dss.business.Schedule;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import dss.business.Course.*;
 import dss.business.User.Student;
@@ -45,15 +46,62 @@ public class GesScheduleFacade implements ISchedule {
     }
 
     public List<Student> getStudentsWithoutSchedule (int idCourse) {
-        return null;
+        try {
+            Course course = courses.getCourse(idCourse);
+            if (course == null) {
+                return null;
+            }
+            return students.getStudentsByCourse(idCourse).stream().filter(student -> student.getSchedule().isEmpty()).collect(Collectors.toList());
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public boolean importTimeTable (int idCourse, int year, String path) {
-        return false;
+        try {
+            Course course = courses.getCourse(idCourse);
+            if (course == null) {
+                return false;
+            }
+
+            List<Shift> shifts = course.importTimeTable(year, path);
+            if (shifts == null) {
+                return false;
+            }
+
+            for (Shift shift : shifts) {
+                int capacity = -1;
+                int type = 0;
+                if(shift instanceof TheoreticalPractical) {
+                    type = 1;
+                    capacity = ((TheoreticalPractical) shift).getCapacity();
+                }
+
+                courses.addShiftToCourse(shift.getId(), shift.getCapacityRoom(), shift.getEnrolledCount(), type, capacity, shift.getUcId());
+
+                for (TimeSlot timeSlot : shift.getTimeSlots()) {
+                    courses.addTimeSlotToShift(timeSlot.getId(), timeSlot.getTimeStart(), timeSlot.getTimeEnd(), timeSlot.getWeekDay(), shift.getId());
+                }
+            }
+
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public boolean postSchedule (int idCourse) {
-        return false;
+        try {
+            Course course = courses.getCourse(idCourse);
+            course.postSchedule();
+            courses.updateCourse(idCourse, course.getName(), course.isVisibilitySchedules());
+            sendEmails(idCourse);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public boolean sendEmails (int idCourse) {
