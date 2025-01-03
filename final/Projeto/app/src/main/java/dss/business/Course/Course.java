@@ -4,15 +4,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
 import java.sql.Time;
-import java.text.Format;
-import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.util.*;
 import javax.json.*;
-import javax.json.stream.JsonParser;
 
 import dss.business.Schedule.PreDefinedSchedule;
 import dss.business.User.*;
@@ -262,8 +257,8 @@ public class Course {
         }
     }
 
-    public Student addStudent(int idStudent, int idCourse) {
-        return new Student(idStudent, Student.generateRandomPassword(), idCourse);
+    public Student addStudent(int idStudent, int idCourse, List<Integer> ucs) {
+        return new Student(idStudent, Student.generateRandomPassword(), idCourse, ucs);
     }
 
     /*
@@ -329,5 +324,4 @@ public class Course {
             return null;
         }
     }
-
 }
