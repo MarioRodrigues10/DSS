@@ -131,6 +131,9 @@ public class GesScheduleFacade implements ISchedule {
     public boolean postSchedule (int idCourse) {
         try {
             Course course = courses.getCourse(idCourse);
+            if (course == null) {
+                return false;
+            }
             course.postSchedule();
             courses.updateCourse(idCourse, course.getName(), course.isVisibilitySchedules());
             sendEmails(idCourse);

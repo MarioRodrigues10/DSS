@@ -108,10 +108,6 @@ public class Student {
         return password;
     }
 
-    public Map<UC, Map<Shift, List<TimeSlot>>> getSchedulePretty() {
-        return null;
-    }
-
     public void removeSchedule() {
         this.schedule = new HashMap<>();
    }

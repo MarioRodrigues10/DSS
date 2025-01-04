@@ -80,22 +80,4 @@ public class UC {
     public void setPolicyPreference(String policyPreference) {
         this.policyPreference = policyPreference;
     }
-
-    /*
-    public void addShift(Shift shift){
-        
-    }
-    */
-
-    /*
-    public boolean addStudentToShift(List<Integer> mapShifts){
-        
-    }
-    */
-    
-    /*
-    public boolean removeStudentFromShift(List<Integer> mapShifts){
-        
-    }
-    */
 }

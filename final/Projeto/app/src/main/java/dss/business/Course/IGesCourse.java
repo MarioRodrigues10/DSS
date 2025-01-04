@@ -9,5 +9,7 @@ public interface IGesCourse {
 
     public boolean importUCs(String path, int idCourse);
 
-    public boolean addStudent(int idStudent, int idCourse, List<Integer> ucs);
+    public boolean addStudent(int idStudent, int idCourse, List<Integer> ucs, int type);
+
+    public Course getCourse(int idCourse);
 }

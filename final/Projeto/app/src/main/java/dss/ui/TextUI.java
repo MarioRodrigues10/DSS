@@ -2,16 +2,16 @@ package dss.ui;
 
 import java.util.*;
 
-import dss.business.LNFacade;
 import dss.ui.coursedirector.CourseDirectorView;
 import dss.ui.student.StudentView;
+import dss.business.ILNFacade;
 
 public class TextUI {
     private CourseDirectorView courseDirectorView;
     private StudentView studentView;
-    private final LNFacade lnFacade;
+    private final ILNFacade lnFacade;
 
-    public TextUI(LNFacade facade) {
+    public TextUI(ILNFacade facade) {
         this.lnFacade = facade;
         this.courseDirectorView = new CourseDirectorView(facade);
         this.studentView = new StudentView(facade);

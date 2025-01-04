@@ -9,18 +9,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-import dss.business.LNFacade;
+import dss.business.ILNFacade;
 import dss.business.Course.Shift;
 import dss.business.Course.TimeSlot;
 import dss.business.Course.UC;
 import dss.business.User.Student;
 
 public class CourseDirectorView {
-    private final LNFacade lnFacade;
+    private final ILNFacade lnFacade;
     private Menu menuPrincipal;
     private int courseId;
 
-    public CourseDirectorView(LNFacade facade) {
+    public CourseDirectorView(ILNFacade facade) {
         this.lnFacade = facade;
     }
 
@@ -68,6 +68,9 @@ public class CourseDirectorView {
         System.out.print("ID do Aluno: ");
         int id = sc.nextInt();
         sc.nextLine();
+        System.out.print("Tipo de Aluno: (0 - Normal, 1 - Atleta, 2 - Trabalhador Estudante): ");
+        int type = sc.nextInt();
+        sc.nextLine();
         System.out.print("Lista de UCs (Separadas por espaço) (e.g: 1 2 3 4 5 6): ");
         String input = sc.nextLine();
         List<Integer> ucs = new ArrayList<>();
@@ -80,7 +83,7 @@ public class CourseDirectorView {
             System.out.println("Erro: UC inválida. Por favor, insira apenas números.");
             return;
         }
-        if (lnFacade.addStudent(id, courseId, ucs)) {
+        if (lnFacade.addStudent(id, courseId, ucs, type)) {
             System.out.println("Aluno adicionado com sucesso!");
         } else {
             System.out.println("Erro ao adicionar aluno.");

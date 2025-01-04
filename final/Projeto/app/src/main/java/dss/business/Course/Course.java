@@ -131,14 +131,6 @@ public class Course {
             }
         }
     }
-    
-    
-    /*
-    public boolean registerSchedule(int idStudent, Map<Integer, List<Integer>> schedule, Map<Integer, List<Integer>> oldSchedule){
-        
-    }
-    */
-
 
     public List<Student> importStudents(String path) throws IOException {
         List<Student> students = new ArrayList<>();
@@ -257,27 +249,9 @@ public class Course {
         }
     }
 
-    public Student addStudent(int idStudent, int idCourse, List<Integer> ucs) {
-        return new Student(idStudent, Student.generateRandomPassword(), idCourse, ucs);
+    public Student addStudent(int idStudent, int idCourse, List<Integer> ucs, int type) {
+        return createStudentByType(idStudent, Student.generateRandomPassword(), idCourse, ucs, type);
     }
-
-    /*
-    public void addUC(UC uc){
-        
-    }
-    */
-
-    /*
-    public Map<String, List<Map<String, String>>> getStudentSchedule(Map<Integer, List<Integer>> idsSchedule){
-        
-    }
-    */
-
-    /*
-    public void postSchedule(){
-        
-    }
-    */
 
     public List<PreDefinedSchedule> importSchedulesPreDefined(String path) {
         try {

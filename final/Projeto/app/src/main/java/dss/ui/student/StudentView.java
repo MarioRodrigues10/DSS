@@ -5,7 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-import dss.business.LNFacade;
+import dss.business.ILNFacade;
+import dss.business.Course.Course;
 import dss.business.Course.Shift;
 import dss.business.Course.TimeSlot;
 import dss.business.Course.UC;
@@ -13,12 +14,12 @@ import dss.business.User.Student;
 import dss.ui.Menu;
 
 public class StudentView {
-    private final LNFacade lnFacade;
+    private final ILNFacade lnFacade;
     private Menu menuPrincipal;
     private Student student;
     private int courseId;
 
-    public StudentView(LNFacade facade) {
+    public StudentView(ILNFacade facade) {
         this.lnFacade = facade;
     }
 
@@ -43,6 +44,15 @@ public class StudentView {
     }
 
     private void consultarHorario() {
+        Course course = lnFacade.getCourse(courseId);
+        if (course == null) {
+            return;
+        }
+        if (course.isVisibilitySchedules() == false) {
+            System.out.println("Horário não disponível.");
+            return;
+        }
+
         Map<UC, Map<Shift,List<TimeSlot>>> horario = lnFacade.getStudentSchedule(student.getId(), courseId);
         if(horario == null) {
             System.out.println("Ainda não tem horário definido.");

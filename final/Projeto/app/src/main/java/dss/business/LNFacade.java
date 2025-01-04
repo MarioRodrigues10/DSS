@@ -3,6 +3,7 @@ package dss.business;
 import java.util.List;
 import java.util.Map;
 
+import dss.business.Course.Course;
 import dss.business.Course.GesCourseFacade;
 import dss.business.Course.Shift;
 import dss.business.Course.TimeSlot;
@@ -11,7 +12,7 @@ import dss.business.User.GesUserFacade;
 import dss.business.User.Student;
 import dss.business.Schedule.GesScheduleFacade;
 
-public class LNFacade {
+public class LNFacade implements ILNFacade {
     private final GesCourseFacade gesCourseFacade = new GesCourseFacade();
     private final GesUserFacade gesUserFacade = new GesUserFacade();
     private final GesScheduleFacade gesScheduleFacade = new GesScheduleFacade();
@@ -29,8 +30,8 @@ public class LNFacade {
         return gesCourseFacade.importUCs(path, idCourse);
     }
 
-    public boolean addStudent(int idStudent, int idCourse, List<Integer> ucs){
-        return gesCourseFacade.addStudent(idStudent, idCourse, ucs);
+    public boolean addStudent(int idStudent, int idCourse, List<Integer> ucs, int type){
+        return gesCourseFacade.addStudent(idStudent, idCourse, ucs, type);
     }
 
     // User
@@ -93,5 +94,9 @@ public class LNFacade {
 
     public boolean importSchedulesPreDefined (int idCourse, String path) {
         return gesScheduleFacade.importSchedulesPreDefined(idCourse, path);
+    }
+
+    public Course getCourse(int idCourse) {
+        return gesCourseFacade.getCourse(idCourse);
     }
 }
