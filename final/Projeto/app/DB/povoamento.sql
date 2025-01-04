@@ -2,8 +2,8 @@
 -- Inserir dados na tabela `courses`
 INSERT INTO `dss`.`courses` (`id`, `name`, `visibilitySchedules`)
 VALUES
-(1, 'Engenharia Informática', TRUE),
-(2, 'Engenharia Mecânica', TRUE),
+(1, 'Engenharia Informática', FALSE),
+(2, 'Engenharia Mecânica', FALSE),
 (3, 'Gestão', FALSE);
 
 -- Inserir dados na tabela `course_director`
