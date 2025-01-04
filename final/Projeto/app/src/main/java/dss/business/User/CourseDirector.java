@@ -36,6 +36,11 @@ public class CourseDirector {
         this.courseId = courseId;
     }
 
+    /**
+     * Verifies if the password is correct.
+     * @param password Password to be verified.
+     * @return True if the password is correct, otherwise false.
+     */
     public boolean verifyPassword(String password) {
         return String.valueOf(this.password).equals(password);
     }

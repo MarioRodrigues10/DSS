@@ -66,6 +66,11 @@ public class TimeSlot {
         return timeStart.equals(timeSlot.timeStart) && timeEnd.equals(timeSlot.timeEnd) && weekDay == timeSlot.weekDay;
     }
 
+    /**
+     * Check if this time slot has a conflict with another time slot.
+     * @param timeSlot Time slot to check for conflicts.
+     * @return True if there is a conflict, otherwise false.
+     */
     public boolean hasConflict(TimeSlot timeSlot) {
         return this.timeStart.before(timeSlot.timeEnd) &&
         this.timeEnd.after(timeSlot.timeStart) &&

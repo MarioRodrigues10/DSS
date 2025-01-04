@@ -48,7 +48,14 @@ public class Course {
         this.visibilitySchedules = visibilitySchedules;
     }
 
-
+    /**
+     * Generates schedules for students based on their year of enrollment and predefined schedules.
+     *
+     * @param students List of students to assign schedules.
+     * @param shifts Map of shifts with their details.
+     * @param ucsByYear Map of UCs grouped by year.
+     * @param schedules Map of predefined schedules.
+     */
     public void generateSchedule(List<Student> students, Map<Integer, Shift> shifts, Map<Integer, List<Integer>> ucsByYear, Map<Integer, PreDefinedSchedule> schedules) {
         // A counter to alternate the schedules assigned to students of the same year
         Map<Integer, Integer> scheduleRoundRobin = new HashMap<>();
@@ -106,7 +113,14 @@ public class Course {
         }
     }
     
-    // Auxiliar method to assign a schedule to a student
+    /**
+     * Auxiliary method to assign a schedule to a student.
+     *
+     * @param student The student to assign the schedule to.
+     * @param finalSchedule Map to store the final schedule for the student.
+     * @param schedule The predefined schedule being assigned.
+     * @param shifts Map of shifts with their details.
+     */
     private void assignScheduleToStudent(Student student, Map<Integer, List<Integer>> finalSchedule, PreDefinedSchedule schedule, Map<Integer, Shift> shifts) {
         Map<Integer, Map<Integer, List<Integer>>> scheduleMap = schedule.getSchedule();
     
@@ -132,6 +146,13 @@ public class Course {
         }
     }
 
+    /**
+     * Imports students from a CSV file.
+     *
+     * @param path Path to the CSV file containing student data.
+     * @return List of imported students.
+     * @throws IOException if an error occurs while reading the file.
+     */
     public List<Student> importStudents(String path) throws IOException {
         List<Student> students = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(path))) {
@@ -155,6 +176,16 @@ public class Course {
         return students;
     }
 
+    /**
+     * Creates a student instance based on the specified type.
+     *
+     * @param id Student's ID.
+     * @param password Generated password for the student.
+     * @param course Course ID the student is enrolled in.
+     * @param ucs List of UCs the student is enrolled in.
+     * @param type Type of the student (e.g., regular, athlete, employed).
+     * @return Instance of the created student.
+     */
     private static Student createStudentByType(int id, String password, int course, List<Integer> ucs, int type) {
         Map<Integer, List<Integer>> emptySchedule = new HashMap<>();
         switch (type) {
@@ -167,11 +198,23 @@ public class Course {
         }
     }
 
+    /**
+     * Sets the visibility of schedules to true, making them public.
+     *
+     * @return True if the visibility is updated successfully.
+     */
     public boolean postSchedule() {
         setVisibilitySchedules(true);
         return true;
     }
 
+    /**
+     * Imports UCs from a JSON file.
+     *
+     * @param path Path to the JSON file containing UC data.
+     * @return List of imported UCs.
+     * @throws IllegalArgumentException if the file does not exist or an error occurs while parsing the JSON.
+     */
     public List<UC> importUCs(String path) {
         File file = new File(path);
         if (!file.exists() || file.isDirectory()) {
@@ -200,6 +243,14 @@ public class Course {
         }
     }
 
+    /**
+     * Imports shifts and time tables from a JSON file.
+     *
+     * @param year Year for which the time table is being imported.
+     * @param path Path to the JSON file containing time table data.
+     * @return List of imported shifts.
+     * @throws IllegalArgumentException if the file does not exist or an error occurs while parsing the JSON.
+     */
     public List<Shift> importTimeTable(Integer year, String path) {
         File file = new File(path);
         if (!file.exists() || file.isDirectory()) {
@@ -249,10 +300,26 @@ public class Course {
         }
     }
 
+    /**
+     * Adds a student to the course.
+     *
+     * @param idStudent ID of the student.
+     * @param idCourse ID of the course.
+     * @param ucs List of UCs the student is enrolled in.
+     * @param type Type of the student (e.g., regular, athlete, employed).
+     * @return Instance of the added student.
+     */
     public Student addStudent(int idStudent, int idCourse, List<Integer> ucs, int type) {
         return createStudentByType(idStudent, Student.generateRandomPassword(), idCourse, ucs, type);
     }
 
+    /**
+     * Imports predefined schedules from a JSON file.
+     *
+     * @param path Path to the JSON file containing predefined schedule data.
+     * @return List of imported predefined schedules.
+     * @throws IllegalArgumentException if the file does not exist or an error occurs while parsing the JSON.
+     */
     public List<PreDefinedSchedule> importSchedulesPreDefined(String path) {
         try {
             // Carregar o arquivo JSON

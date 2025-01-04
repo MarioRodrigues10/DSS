@@ -17,7 +17,7 @@ public class Student {
     private int id;
     private String password;
     private int course;
-    private Map<Integer, List<Integer>> schedule;
+    private Map<Integer, List<Integer>> schedule; // Map<UC, List<Shift>>
     private List<Integer> ucs;
 
     public Student(int id, String password, int idCourse){
@@ -96,6 +96,11 @@ public class Student {
         }
     }
 
+    /**
+     * Generates a random 8-character password consisting of uppercase letters, lowercase letters, and digits.
+     *
+     * @return The generated random password.
+     */
     public static String generateRandomPassword() {
         String password = "";
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -108,18 +113,37 @@ public class Student {
         return password;
     }
 
+    /**
+     * Removes the student's schedule, clearing all assigned shifts.
+     */
     public void removeSchedule() {
         this.schedule = new HashMap<>();
    }
 
-    public String getEmail(){
+    /**
+     * Retrieves the email address associated with the student.
+     *
+     * @return The student's email address.
+     */
+    public String getEmail() {
         return "a" + id + "@alunos.uminho.pt";
     }
 
+    /**
+     * Checks if the student has any schedule assigned.
+     *
+     * @return True if the student has a schedule, otherwise false.
+     */
     public boolean hasSchedule() {
         return !schedule.isEmpty();
     }
 
+    /**
+     * Checks if the student's schedule has any conflicts with the given list of shifts.
+     *
+     * @param shifts A list of shifts to check for conflicts.
+     * @return True if there is a schedule conflict, otherwise false.
+     */
     public boolean hasScheduleConflict(List<Shift> shifts) {
         List<TimeSlot> timeSlots = new ArrayList<>();
 
@@ -142,6 +166,13 @@ public class Student {
                     .anyMatch(timeSlot::hasConflict));
     }
 
+    /**
+     * Finds a shift by its ID from a list of shifts.
+     *
+     * @param shifts The list of shifts to search through.
+     * @param shiftId The ID of the shift to find.
+     * @return The matching Shift object, or null if not found.
+     */
     private Shift findShiftById(List<Shift> shifts, int shiftId) {
         for (Shift shift : shifts) {
             if (shift.getId() == shiftId) {
@@ -151,6 +182,9 @@ public class Student {
         return null;
     }
 
+    /**
+     * Sends an email notification to the student about their schedule.
+     */
     public void sendEmail() {
         String title = "Horário do Curso publicado";
         String body = this.buildEmailContent();
@@ -160,6 +194,13 @@ public class Student {
         this.sendEmailAux(title, body, to);
     }
 
+    /**
+     * Helper method for sending an email using the specified parameters.
+     *
+     * @param title The email subject.
+     * @param body The email body.
+     * @param to The recipient's email address.
+     */
     public void sendEmailAux(String title, String body, String to) {
         // Email de onde quer enviar
         String from = "xxxx@gmail.com";
@@ -194,6 +235,11 @@ public class Student {
         }
     }
 
+    /**
+     * Builds the email content for schedule notifications.
+     *
+     * @return A formatted string containing the email content.
+     */
     private String buildEmailContent() {
         StringBuilder sb = new StringBuilder();
         sb.append("Bom dia, ").append(this.getEmail()).append("!\n\n");
@@ -223,6 +269,12 @@ public class Student {
         }
     }
 
+    /**
+     * Determines the years associated with the student's UCs.
+     *
+     * @param ucsByYear A map of year IDs to UC lists.
+     * @return A list of years containing the student's UCs.
+     */
     public List<Integer> getYearsWithUCs(Map<Integer, List<Integer>> ucsByYear) {
         List<Integer> years = new ArrayList<>();
         for (Map.Entry<Integer, List<Integer>> entry : ucsByYear.entrySet()) {
@@ -239,6 +291,13 @@ public class Student {
         return years;
     }
 
+    /**
+     * Exports the student's schedule to a file.
+     *
+     * @param schedule The schedule data to export.
+     * @param filename The name of the file to save the schedule.
+     * @return True if the schedule is successfully exported, otherwise false.
+     */
     public boolean exportSchedule(Map<UC, Map<Shift, List<TimeSlot>>> schedule, String filename){
         try {
             FileWriter fileWriter = new FileWriter(filename);

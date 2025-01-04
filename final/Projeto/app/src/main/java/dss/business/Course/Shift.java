@@ -70,6 +70,10 @@ public class Shift {
         this.enrolledCount++;
     }
 
+    /**
+     * Check if the shift has capacity for more students.
+     * @return True if the shift has capacity, otherwise false.
+     */
     public boolean hasCapacity() {
         return enrolledCount < capacityRoom;
     }
